@@ -5,16 +5,18 @@ SET (CMAKE_BUILD_TYPE Debug)
 
 enable_testing()
 
+set(IDF_PATH /home/olas/esp/esp-idf)
 
-IF(WIN32)
-ADD_DEFINITIONS(-D WIN32 )
+
+ADD_DEFINITIONS(-D TEST )
+
 set(CMAKE_CXX_FLAGS "-g -Wall -std=c++11 -static-libstdc++")
-ELSE(WIN32)
-set(CMAKE_CXX_FLAGS "-g -Wall -std=c++11")
-ENDIF(WIN32)
+set(CMAKE_C_FLAGS "-g -std=c99")
 
 
 INCLUDE_DIRECTORIES(
+${IDF_PATH}/components/nvs_flash/include/
+${IDF_PATH}/components/esp32/include/
 freeRTOS
 freeRTOS/freertos
 freeRTOS/portable/GCC/Posix
@@ -22,6 +24,10 @@ freeRTOS/portable/GCC/Posix
 
 SET (LIBRARY_TYPE STATIC)
 
+ADD_LIBRARY(dummy
+components/nvs_flash/nvs_flash.c
+components/esp32/dummy_esp32.c
+)
 
 ADD_LIBRARY(freertos
 freeRTOS/croutine.c
@@ -48,7 +54,7 @@ ADD_EXECUTABLE(linux_esp32
 main_task.c
 )
 
-TARGET_LINK_LIBRARIES(linux_esp32 freertos pthread)
+TARGET_LINK_LIBRARIES(linux_esp32 freertos dummy pthread)
 
 
 #add_test(test1 testFunctions)

@@ -28,13 +28,13 @@ void vApplicationIdleHook( void )
     /* The co-routines are executed in the idle task using the idle task hook. */
     vCoRoutineSchedule();	/* Comment this out if not using Co-routines. */
 
-//#ifdef __GCC_POSIX__
+#ifdef __GCC_POSIX__
     struct timespec xTimeToSleep, xTimeSlept;
         /* Makes the process more agreeable when using the Posix simulator. */
         xTimeToSleep.tv_sec = 1;
         xTimeToSleep.tv_nsec = 0;
         nanosleep( &xTimeToSleep, &xTimeSlept );
-//#endif
+#endif
 }
 /*-----------------------------------------------------------*/
 

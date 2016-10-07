@@ -63,8 +63,11 @@
 #include <sys/times.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <bits/sigaction.h>
 #include <unistd.h>
 #include <limits.h>
+#include <pthread.h>
+#include <bits/local_lim.h>
 
 /* Scheduler includes. */
 #include "FreeRTOS.h"
