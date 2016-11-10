@@ -2309,7 +2309,108 @@ void vTaskExitCritical( void )
 
 #endif
 /*-----------------------------------------------------------*/
+// OLAS Pinned to core...
+// signed portBASE_TYPE xTaskGenericCreate(
+// pdTASK_CODE pxTaskCode, const signed char * const pcName, unsigned short usStackDepth, void *pvParameters, unsigned portBASE_TYPE uxPriority, xTaskHandle *pxCreatedTask, portSTACK_TYPE *puxStackBuffer, const xMemoryRegion * const xRegions
+#if 1
 
+	int xTaskCreatePinnedToCore(	pdTASK_CODE pxTaskCode,
+							const char * const pcName,
+							const unsigned short usStackDepth,
+							void * const pvParameters,
+							int uxPriority,
+							xTaskHandle * const pxCreatedTask,
+                            const int xCoreID )
+	{
 
+   xTaskGenericCreate(  pxTaskCode,  pcName, usStackDepth, pvParameters, uxPriority, pxCreatedTask, NULL /*puxStackBuffer*/, NULL /* xRegions */ );
+   //xTaskCreate( main_task, "UDPRxTx", configMINIMAL_STACK_SIZE, NULL /*task param*/ , tskIDLE_PRIORITY + 1, &hmainTask );
+
+#if  0
+
+	TCB_t *pxNewTCB;
+	BaseType_t xReturn;
+
+		/* If the stack grows down then allocate the stack then the TCB so the stack
+		does not grow into the TCB.  Likewise if the stack grows up then allocate
+		the TCB then the stack. */
+		#if( portSTACK_GROWTH > 0 )
+		{
+			/* Allocate space for the TCB.  Where the memory comes from depends on
+			the implementation of the port malloc function and whether or not static
+			allocation is being used. */
+			pxNewTCB = ( TCB_t * ) pvPortMalloc( sizeof( TCB_t ) );
+
+			if( pxNewTCB != NULL )
+			{
+				/* Allocate space for the stack used by the task being created.
+				The base of the stack memory stored in the TCB so the task can
+				be deleted later if required. */
+				pxNewTCB->pxStack = ( StackType_t * ) pvPortMalloc( ( ( ( size_t ) usStackDepth ) * sizeof( StackType_t ) ) ); 
+				/*lint !e961 MISRA exception as the casts are only redundant for some ports. */
+
+				if( pxNewTCB->pxStack == NULL )
+				{
+					/* Could not allocate the stack.  Delete the allocated TCB. */
+					vPortFree( pxNewTCB );
+					pxNewTCB = NULL;
+				}
+			}
+		}
+		#else /* portSTACK_GROWTH */
+		{
+		StackType_t *pxStack;
+
+			/* Allocate space for the stack used by the task being created. */
+			pxStack = ( StackType_t * ) pvPortMalloc( ( ( ( size_t ) usStackDepth ) * sizeof( StackType_t ) ) ); /*lint !e961 MISRA exception as the casts are only redundant for some ports. */
+
+			if( pxStack != NULL )
+			{
+				/* Allocate space for the TCB. */
+				pxNewTCB = ( TCB_t * ) pvPortMalloc( sizeof( TCB_t ) ); /*lint !e961 MISRA exception as the casts are only redundant for some paths. */
+
+				if( pxNewTCB != NULL )
+				{
+					/* Store the stack location in the TCB. */
+					pxNewTCB->pxStack = pxStack;
+				}
+				else
+				{
+					/* The stack cannot be used as the TCB was not created.  Free
+					it again. */
+					vPortFree( pxStack );
+				}
+			}
+			else
+			{
+				pxNewTCB = NULL;
+			}
+		}
+		#endif /* portSTACK_GROWTH */
+
+		if( pxNewTCB != NULL )
+		{
+			#if( tskSTATIC_AND_DYNAMIC_ALLOCATION_POSSIBLE != 0 )
+			{
+				/* Tasks can be created statically or dynamically, so note this
+				task was created dynamically in case it is later deleted. */
+				pxNewTCB->ucStaticallyAllocated = tskDYNAMICALLY_ALLOCATED_STACK_AND_TCB;
+			}
+			#endif /* configSUPPORT_STATIC_ALLOCATION */
+
+			prvInitialiseNewTask( pxTaskCode, pcName, ( uint32_t ) usStackDepth, pvParameters, uxPriority, pxCreatedTask, pxNewTCB, NULL, xCoreID );
+			prvAddNewTaskToReadyList( pxNewTCB, pxTaskCode, xCoreID );
+			xReturn = pdPASS;
+		}
+		else
+		{
+			xReturn = errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY;
+		}
+
+		return xReturn;
+#endif
+	}
+
+#endif /* configSUPPORT_DYNAMIC_ALLOCATION */
 
 
