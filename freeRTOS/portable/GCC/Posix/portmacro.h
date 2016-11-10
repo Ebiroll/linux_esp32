@@ -160,6 +160,10 @@ extern void vPortFindTicksPerSecond( void );
 extern unsigned long ulPortGetTimerValue( void );
 #define portGET_RUN_TIME_COUNTER_VALUE()			ulPortGetTimerValue()			/* Query the System time stats for this process. */
 
+// Olas
+#define portTICK_PERIOD_MS			(  1000 / configTICK_RATE_HZ )
+#define xTaskCreatePinnedToCore( pvTaskCode, pcName, usStackDepth, pvParameters, uxPriority, pxCreatedTask,core ) xTaskGenericCreate( ( pvTaskCode ), ( pcName ), ( usStackDepth ), ( pvParameters ), ( uxPriority ), ( pxCreatedTask ), ( NULL ), ( NULL ) )
+
 #ifdef __cplusplus
 }
 #endif

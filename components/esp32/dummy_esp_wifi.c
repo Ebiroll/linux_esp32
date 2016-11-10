@@ -73,7 +73,7 @@
   * @return others : fail
   */
 esp_err_t esp_wifi_init(wifi_init_config_t *config) {
-
+    return(ESP_OK);
 };
 
 /**
@@ -689,3 +689,19 @@ esp_err_t esp_wifi_set_vendor_ie_cb(esp_vendor_ie_cb_t cb, void *ctx)
         return(ESP_OK);    
 }
 
+/**
+  * @brief  free the rx buffer which allocated by wifi driver
+  *
+  * @param  void* buffer: rx buffer pointer
+  *
+  * @return    nonoe
+  */
+void esp_wifi_internal_free_rx_buffer(void* buffer)
+{
+
+}
+
+// This is in ROM??
+esp_err_t esp_wifi_set_sta_ip(void) {
+        return(ESP_OK);      
+}

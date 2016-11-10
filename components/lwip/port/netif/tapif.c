@@ -52,12 +52,12 @@
 #include "lwip/snmp.h"
 #include "lwip/pbuf.h"
 #include "lwip/sys.h"
-#include "lwip/timeouts.h"
+//#include "lwip/timeouts.h"
 #include "netif/etharp.h"
 #include "lwip/ethip6.h"
 
 #if defined(LWIP_DEBUG) && defined(LWIP_TCPDUMP)
-#include "netif/tcpdump.h"
+//#include "netif/tcpdump.h"
 #endif /* LWIP_DEBUG && LWIP_TCPDUMP */
 
 #include "netif/tapif.h"
@@ -95,12 +95,15 @@
 #endif
 
 /* Define those to better describe your network interface. */
-#define IFNAME0 't'
-#define IFNAME1 'p'
+#define IFNAME0 'e'
+#define IFNAME1 'n'
 
 #ifndef TAPIF_DEBUG
 #define TAPIF_DEBUG LWIP_DBG_OFF
 #endif
+
+static char hostname[16];
+
 
 struct tapif {
   /* Add whatever per-interface state that is needed here. */
@@ -420,3 +423,125 @@ tapif_thread(void *arg)
 }
 
 #endif /* NO_SYS */
+
+/**
+ * This function should be called when a packet is ready to be read
+ * from the interface. It uses the function low_level_input() that
+ * should handle the actual reception of bytes from the network
+ * interface. Then the type of the received packet is determined and
+ * the appropriate input function is called.
+ *
+ * @param netif the lwip network interface structure for this ethernetif
+ */
+void
+#if ESP_LWIP
+wlanif_input(struct netif *netif, void *buffer, u16_t len, void* eb)
+#else
+wlanif_input(struct netif *netif, void *buffer, uint16 len)
+#endif
+{
+  struct pbuf *p;
+  
+#if ESP_LWIP
+    if(buffer== NULL)
+    	goto _exit;
+    if(netif == NULL)
+    	goto _exit;
+#endif
+
+#if ESP_LWIP
+  p = pbuf_alloc(PBUF_RAW, len, PBUF_REF);
+  if (p == NULL){
+#if ESP_PERF
+      g_rx_alloc_pbuf_fail_cnt++;
+#endif
+      return;
+  }
+  p->payload = buffer;
+  p->eb = eb;
+#else
+  p = pbuf_alloc(PBUF_IP, len, PBUF_POOL);
+  if (p == NULL) {
+    return;
+  }
+  memcpy(p->payload, buffer, len);
+#endif
+
+
+  /* full packet send to tcpip_thread to process */
+  if (netif->input(p, netif) != ERR_OK) {
+    LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
+    pbuf_free(p);
+  }
+  
+_exit:
+;	  
+}
+
+
+/**
+ * Should be called at the beginning of the program to set up the
+ * network interface. It calls the function low_level_init() to do the
+ * actual setup of the hardware.
+ *
+ * This function should be passed as a parameter to netif_add().
+ *
+ * @param netif the lwip network interface structure for this ethernetif
+ * @return ERR_OK if the loopif is initialized
+ *         ERR_MEM if private data couldn't be allocated
+ *         any other err_t on error
+ */
+err_t
+wlanif_init(struct netif *netif)
+{
+  LWIP_ASSERT("netif != NULL", (netif != NULL));
+
+#if LWIP_NETIF_HOSTNAME
+  /* Initialize interface hostname */
+
+#if ESP_LWIP
+//TO_DO
+/*
+  if ((struct netif *)wifi_get_netif(STATION_IF) == netif) {
+      if (default_hostname == 1) {
+          wifi_station_set_default_hostname(netif->hwaddr);
+      }
+      netif->hostname = hostname;
+  } else {
+      netif->hostname = NULL;
+  }
+*/
+  sprintf(hostname, "ESP_%02X%02X%02X", netif->hwaddr[3], netif->hwaddr[4], netif->hwaddr[5]);
+  netif->hostname = hostname;
+  
+#else
+  sprintf(hostname, "ESP_%02X%02X%02X", netif->hwaddr[3], netif->hwaddr[4], netif->hwaddr[5]);
+  netif->hostname = hostname;
+#endif
+  
+#endif /* LWIP_NETIF_HOSTNAME */
+
+  /*
+   * Initialize the snmp variables and counters inside the struct netif.
+   * The last argument should be replaced with your link speed, in units
+   * of bits per second.
+   */
+  NETIF_INIT_SNMP(netif, snmp_ifType_ethernet_csmacd, LINK_SPEED_OF_YOUR_NETIF_IN_BPS);
+
+  netif->name[0] = IFNAME0;
+  netif->name[1] = IFNAME1;
+  /* We directly use etharp_output() here to save a function call.
+   * You can instead declare your own function an call etharp_output()
+   * from it if you have to do some checks before sending (e.g. if link
+   * is available...) */
+  netif->output = etharp_output;
+#if LWIP_IPV6
+  netif->output_ip6 = ethip6_output;
+#endif /* LWIP_IPV6 */
+  netif->linkoutput = low_level_output;
+  
+  /* initialize the hardware */
+  low_level_init(netif);
+
+  return ERR_OK;
+}

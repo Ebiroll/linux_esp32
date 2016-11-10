@@ -417,5 +417,11 @@ typedef portBASE_TYPE (*pdTASK_HOOK_CODE)( void * );
 	#define vPortFreeAligned( pvBlockToFree ) vPortFree( pvBlockToFree )
 #endif
 
+
+// Compatibility
+#define xQueueHandle QueueHandle_t
+#define xSemaphoreHandle SemaphoreHandle_t
+
+
 #endif /* INC_FREERTOS_H */
 
