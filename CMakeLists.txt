@@ -6,7 +6,8 @@ SET (CMAKE_BUILD_TYPE Debug)
 enable_testing()
 
 set(IDF_PATH /home/olas/esp/esp-idf)
-
+set(LDF_PATH /home/olas/esp/linux_esp32)
+set(THIS_PATH /home/olas/esp/qemu_esp32)
 
 ADD_DEFINITIONS(-D TEST )
 
@@ -17,6 +18,10 @@ set(CMAKE_C_FLAGS "-g -std=c99")
 INCLUDE_DIRECTORIES(
 ${IDF_PATH}/components/nvs_flash/include/
 ${IDF_PATH}/components/esp32/include/
+${IDF_PATH}/components/esp32/include
+${IDF_PATH}/components/driver/include/
+${IDF_PATH}/components/log/include/
+${THIS_PATH}/build/include/
 freeRTOS
 freeRTOS/freertos
 freeRTOS/portable/GCC/Posix
@@ -30,22 +35,22 @@ components/esp32/dummy_esp32.c
 )
 
 ADD_LIBRARY(freertos
-freeRTOS/croutine.c
-freeRTOS/list.c
-freeRTOS/queue.c
-freeRTOS/tasks.c
-freeRTOS/portable/MemMang/heap_3.c
-freeRTOS/portable/GCC/Posix/port.c
-freeRTOS/freertos/croutine.h
-freeRTOS/freertos/FreeRTOS.h
-freeRTOS/freertos/list.h
-freeRTOS/freertos/mpu_wrappers.h
-freeRTOS/freertos/portable.h
-freeRTOS/freertos/projdefs.h
-freeRTOS/freertos/queue.h
-freeRTOS/freertos/semphr.h
-freeRTOS/freertos/StackMacros.h
-freeRTOS/freertos/task.h
+${LDF_PATH}/freeRTOS/croutine.c
+${LDF_PATH}/freeRTOS/list.c
+${LDF_PATH}/freeRTOS/queue.c
+${LDF_PATH}/freeRTOS/tasks.c
+${LDF_PATH}/freeRTOS/portable/MemMang/heap_3.c
+${LDF_PATH}/freeRTOS/portable/GCC/Posix/port.c
+${LDF_PATH}/freeRTOS/freertos/croutine.h
+${LDF_PATH}/freeRTOS/freertos/FreeRTOS.h
+${LDF_PATH}/freeRTOS/freertos/list.h
+${LDF_PATH}/freeRTOS/freertos/mpu_wrappers.h
+${LDF_PATH}/freeRTOS/freertos/portable.h
+${LDF_PATH}/freeRTOS/freertos/projdefs.h
+${LDF_PATH}/freeRTOS/freertos/queue.h
+${LDF_PATH}/freeRTOS/freertos/semphr.h
+${LDF_PATH}/freeRTOS/freertos/StackMacros.h
+${LDF_PATH}/freeRTOS/freertos/task.h
 )
 
 
