@@ -1,3 +1,4 @@
+#include <stdbool.h> 
 #include <sys/time.h>
 #include <stddef.h>
 #include <esp_system.h>

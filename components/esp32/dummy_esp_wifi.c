@@ -53,8 +53,8 @@
  * handle the events when necessary.
  *
  */
-
 #include "esp_wifi.h"
+#include "esp_wifi_internal.h"
 
 /**
   * @brief  Init WiFi
