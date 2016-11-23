@@ -18,7 +18,7 @@ int main(int argc,char *argv[])
     xTaskCreate( main_task, "mai", 4096*2, NULL /*task param*/ , tskIDLE_PRIORITY + 1, &hmainTask );
 
     xPortStartScheduler();
-    for(;;);
+    //for(;;);
 }
 
 

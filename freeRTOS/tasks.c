@@ -55,6 +55,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <errno.h>
 
 /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
 all the API functions to use the MPU wrappers.  That should only be done when
@@ -653,6 +655,7 @@ tskTCB * pxNewTCB;
 
 	void vTaskDelayUntil( portTickType * const pxPreviousWakeTime, portTickType xTimeIncrement )
 	{
+
 	portTickType xTimeToWake;
 	portBASE_TYPE xAlreadyYielded, xShouldDelay = pdFALSE;
 
@@ -730,6 +733,31 @@ tskTCB * pxNewTCB;
 
 	void vTaskDelay( portTickType xTicksToDelay )
 	{
+           //struct timespec {
+           //    time_t tv_sec;        /* seconds */
+           //    long   tv_nsec;       /* nanoseconds */
+           //};
+		   // 300 / portTICK_PERIOD_MS
+		   unsigned long mstest=(xTicksToDelay*portTICK_PERIOD_MS);
+		   struct timespec sleep;
+		   sleep.tv_sec=mstest/1000;
+		   sleep.tv_nsec= mstest*10000000-sleep.tv_sec*100000000000;
+
+		   struct timespec remain;
+		   remain.tv_sec=1;
+		   remain.tv_nsec=0; //(xTicksToDelay*portTICK_PERIOD_MS)*1000;
+
+
+		   while (nanosleep(&sleep,&remain)<0) 
+		   {
+			   sleep.tv_sec=remain.tv_sec;
+			   sleep.tv_nsec=remain.tv_nsec;	
+			   if (errno!=EINTR) {
+				   //break;
+			   }		   
+		   }
+// TODO.. WHY does this not work???
+#if 0
 	portTickType xTimeToWake;
 	signed portBASE_TYPE xAlreadyYielded = pdFALSE;
 
@@ -782,6 +810,7 @@ tskTCB * pxNewTCB;
 		{
 			portYIELD_WITHIN_API();
 		}
+		#endif
 	}
 
 #endif
