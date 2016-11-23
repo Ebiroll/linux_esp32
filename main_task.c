@@ -15,10 +15,10 @@ int main(int argc,char *argv[])
     //xTaskCreatePinnedToCore(&main_task, "main",...)
     xTaskHandle hmainTask;
 
-    xTaskCreate( main_task, "mai", configMINIMAL_STACK_SIZE, NULL /*task param*/ , tskIDLE_PRIORITY + 1, &hmainTask );
+    xTaskCreate( main_task, "mai", 4096*2, NULL /*task param*/ , tskIDLE_PRIORITY + 1, &hmainTask );
 
     xPortStartScheduler();
-    //vTaskStartScheduler();
+    for(;;);
 }
 
 

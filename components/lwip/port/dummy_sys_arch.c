@@ -386,7 +386,7 @@ sys_mbox_free(sys_mbox_t *mbox)
   LWIP_DEBUGF(ESP_THREAD_SAFE_DEBUG, ("sys_mbox_free:free mbox\n"));
 
   if (uxQueueMessagesWaiting((*mbox)->os_mbox)) {
-    //xQueueReset((*mbox)->os_mbox);
+    xQueueReset((*mbox)->os_mbox);
     /* Line for breakpoint.  Should never break here! */
     //__asm__ volatile ("nop");
   }
