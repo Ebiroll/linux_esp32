@@ -508,7 +508,8 @@ void * pParams = pxParams->pvParams;
 
 	if ( 0 == pthread_mutex_lock( &xSingleThreadMutex ) )
 	{
-		prvSuspendThread( pthread_self() );
+		pthread_t debug=pthread_self();
+		prvSuspendThread( debug );
 	}
 
 	pvCode( pParams );
