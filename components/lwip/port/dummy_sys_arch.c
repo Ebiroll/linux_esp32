@@ -488,7 +488,7 @@ sys_arch_assert(const char *file, int line)
  */
 sys_sem_t* sys_thread_sem_get(void)
 {
-  sys_sem_t *sem = NULL; // (sys_sem_t*)pvTaskGetThreadLocalStoragePointer(xTaskGetCurrentTaskHandle(), SYS_TLS_INDEX);
+  sys_sem_t *sem = (sys_sem_t*)pvTaskGetThreadLocalStoragePointer(xTaskGetCurrentTaskHandle(), SYS_TLS_INDEX);
   if (!sem){
     sem = sys_thread_sem_init();
   }
@@ -521,14 +521,16 @@ sys_sem_t* sys_thread_sem_init(void)
   }
 
   //*sem = xSemaphoreCreateBinary();
-  //if (!(*sem)){
-  //  free(sem);
-  //  printf("sem f2\n");
-  //  return 0;
-  //}
+  vSemaphoreCreateBinary(sem);
+  if (!(*sem)){
+    free(sem);
+    printf("sem f2\n");
+    return 0;
+  }
 
   LWIP_DEBUGF(ESP_THREAD_SAFE_DEBUG, ("sem init sem_p=%p sem=%p cb=%p\n", sem, *sem, sys_thread_tls_free));
   //vTaskSetThreadLocalStoragePointerAndDelCallback(xTaskGetCurrentTaskHandle(), SYS_TLS_INDEX, sem, (TlsDeleteCallbackFunction_t)sys_thread_tls_free);
+  vTaskSetThreadLocalStoragePointer(xTaskGetCurrentTaskHandle(), SYS_TLS_INDEX, sem);
 
   return sem;
 }
@@ -539,6 +541,7 @@ void sys_thread_sem_deinit(void)
 
   //sys_thread_tls_free(SYS_TLS_INDEX, (void*)sem);
   //vTaskSetThreadLocalStoragePointerAndDelCallback(xTaskGetCurrentTaskHandle(), SYS_TLS_INDEX, 0, 0);
+  vTaskSetThreadLocalStoragePointer(xTaskGetCurrentTaskHandle(), SYS_TLS_INDEX, 0);
 
   return;
 }

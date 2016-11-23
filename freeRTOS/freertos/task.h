@@ -86,6 +86,10 @@ extern "C" {
  */
 typedef void * xTaskHandle;
 
+typedef void * TaskHandle_t;
+
+typedef int BaseType_t;
+
 /*
  * Used internally only.
  */
@@ -1253,6 +1257,12 @@ void vTaskPriorityDisinherit( xTaskHandle * const pxMutexHolder ) PRIVILEGED_FUN
  * xTaskCreate() and xTaskCreateRestricted() macros.
  */
 signed portBASE_TYPE xTaskGenericCreate( pdTASK_CODE pvTaskCode, const signed char * const pcName, unsigned short usStackDepth, void *pvParameters, unsigned portBASE_TYPE uxPriority, xTaskHandle *pxCreatedTask, portSTACK_TYPE *puxStackBuffer, const xMemoryRegion * const xRegions ) PRIVILEGED_FUNCTION;
+
+// OLAS
+	void vTaskSetThreadLocalStoragePointer( TaskHandle_t xTaskToSet, BaseType_t xIndex, void *pvValue ) PRIVILEGED_FUNCTION;
+	void *pvTaskGetThreadLocalStoragePointer( TaskHandle_t xTaskToQuery, BaseType_t xIndex ) PRIVILEGED_FUNCTION;
+
+
 
 #ifdef __cplusplus
 }

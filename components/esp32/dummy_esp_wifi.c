@@ -120,6 +120,9 @@ esp_err_t esp_wifi_get_mode(wifi_mode_t *mode)
     return(ESP_OK);
 }
 
+extern void Task_lwip_init(void * pParam);
+
+
 /**
   * @brief  Start WiFi according to current configuration
   *         If mode is WIFI_MODE_STA, it create station control block and start station
@@ -133,7 +136,9 @@ esp_err_t esp_wifi_get_mode(wifi_mode_t *mode)
   */
 esp_err_t esp_wifi_start(void)
 {
-    return(ESP_OK);
+  // Initialise tap device
+  Task_lwip_init(NULL);
+  return(ESP_OK);
 
 }
 
@@ -167,6 +172,8 @@ esp_err_t esp_wifi_stop(void)
   */
 esp_err_t esp_wifi_connect(void)
 {
+   
+
     return(ESP_OK);
 }
 

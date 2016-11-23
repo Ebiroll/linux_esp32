@@ -65,6 +65,11 @@ task.h is included from an application file. */
 #include "task.h"
 #include "StackMacros.h"
 
+//OLAS
+#ifndef configNUM_THREAD_LOCAL_STORAGE_POINTERS
+#define configNUM_THREAD_LOCAL_STORAGE_POINTERS 4
+#endif
+
 #undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 /*
@@ -109,6 +114,10 @@ typedef struct tskTaskControlBlock
 	#if ( configUSE_APPLICATION_TASK_TAG == 1 )
 		pdTASK_HOOK_CODE pxTaskTag;
 	#endif
+
+	//#if( configNUM_THREAD_LOCAL_STORAGE_POINTERS > 0 )
+		void *pvThreadLocalStoragePointers[ 4 ];
+    //#endif
 
 	#if ( configGENERATE_RUN_TIME_STATS == 1 )
 		unsigned long ulRunTimeCounter;		/*< Used for calculating how much CPU time each task is utilising. */
@@ -200,6 +209,8 @@ PRIVILEGED_DATA static unsigned portBASE_TYPE uxTaskNumber 						= ( unsigned po
 	PRIVILEGED_DATA static char pcStatusString[ 50 ];
 
 #endif
+
+
 
 /*-----------------------------------------------------------*/
 
@@ -446,6 +457,16 @@ tskTCB * pxNewTCB;
 			pxNewTCB->pxTopOfStack = pxPortInitialiseStack( pxTopOfStack, pxTaskCode, pvParameters );
 		}
 		#endif
+// OLAS 
+   		for(int x = 0; x < ( unsigned int ) configNUM_THREAD_LOCAL_STORAGE_POINTERS; x++ )
+		{
+			pxNewTCB->pvThreadLocalStoragePointers[ x ] = NULL;
+		}
+
+
+
+
+
 
 		/* We are going to manipulate the task queues to add this task to a
 		ready list, so must make sure no interrupts occur. */
@@ -528,6 +549,39 @@ tskTCB * pxNewTCB;
 	return xReturn;
 }
 /*-----------------------------------------------------------*/
+
+//OLAS
+	void *pvTaskGetThreadLocalStoragePointer( TaskHandle_t xTaskToQuery, BaseType_t xIndex )
+	{
+	void *pvReturn = NULL;
+	tskTCB *pxTCB;
+
+		if( xIndex < configNUM_THREAD_LOCAL_STORAGE_POINTERS )
+		{
+			pxTCB = prvGetTCBFromHandle( xTaskToQuery );
+			pvReturn = pxTCB->pvThreadLocalStoragePointers[ xIndex ];
+		}
+		else
+		{
+			pvReturn = NULL;
+		}
+
+		return pvReturn;
+	}
+
+	void vTaskSetThreadLocalStoragePointer( TaskHandle_t xTaskToSet, BaseType_t xIndex, void *pvValue )
+	{
+	tskTCB *pxTCB;
+
+		if( xIndex < configNUM_THREAD_LOCAL_STORAGE_POINTERS )
+		{
+			pxTCB = prvGetTCBFromHandle( xTaskToSet );
+			pxTCB->pvThreadLocalStoragePointers[ xIndex ] = pvValue;
+		}
+	}
+
+
+
 
 #if ( INCLUDE_vTaskDelete == 1 )
 
@@ -2222,25 +2276,31 @@ tskTCB *pxNewTCB;
 	{
 	tskTCB * const pxTCB = ( tskTCB * ) pxMutexHolder;
 
-		if( pxTCB->uxPriority < pxCurrentTCB->uxPriority )
-		{
-			/* Adjust the mutex holder state to account for its new priority. */
-			listSET_LIST_ITEM_VALUE( &( pxTCB->xEventListItem ), configMAX_PRIORITIES - ( portTickType ) pxCurrentTCB->uxPriority );
-
-			/* If the task being modified is in the ready state it will need to
-			be moved in to a new list. */
-			if( listIS_CONTAINED_WITHIN( &( pxReadyTasksLists[ pxTCB->uxPriority ] ), &( pxTCB->xGenericListItem ) ) )
+	    if (pxTCB==NULL) {
+			printf("vTaskPriorityInherit(NULL), Now what??");
+		} 
+		else
+        {
+			if( pxTCB->uxPriority < pxCurrentTCB->uxPriority )
 			{
-				vListRemove( &( pxTCB->xGenericListItem ) );
+				/* Adjust the mutex holder state to account for its new priority. */
+				listSET_LIST_ITEM_VALUE( &( pxTCB->xEventListItem ), configMAX_PRIORITIES - ( portTickType ) pxCurrentTCB->uxPriority );
 
-				/* Inherit the priority before being moved into the new list. */
-				pxTCB->uxPriority = pxCurrentTCB->uxPriority;
-				prvAddTaskToReadyQueue( pxTCB );
-			}
-			else
-			{
-				/* Just inherit the priority. */
-				pxTCB->uxPriority = pxCurrentTCB->uxPriority;
+				/* If the task being modified is in the ready state it will need to
+				be moved in to a new list. */
+				if( listIS_CONTAINED_WITHIN( &( pxReadyTasksLists[ pxTCB->uxPriority ] ), &( pxTCB->xGenericListItem ) ) )
+				{
+					vListRemove( &( pxTCB->xGenericListItem ) );
+
+					/* Inherit the priority before being moved into the new list. */
+					pxTCB->uxPriority = pxCurrentTCB->uxPriority;
+					prvAddTaskToReadyQueue( pxTCB );
+				}
+				else
+				{
+					/* Just inherit the priority. */
+					pxTCB->uxPriority = pxCurrentTCB->uxPriority;
+				}
 			}
 		}
 	}

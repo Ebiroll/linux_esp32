@@ -64,6 +64,8 @@
 
 #define IFCONFIG_BIN "/sbin/ifconfig "
 
+#define LWIP_UNIX_LINUX 1
+
 #if defined(LWIP_UNIX_LINUX)
 #include <sys/ioctl.h>
 #include <linux/if.h>
@@ -145,6 +147,7 @@ low_level_init(struct netif *netif)
 
   tapif->fd = open(DEVTAP, O_RDWR);
   LWIP_DEBUGF(TAPIF_DEBUG, ("tapif_init: fd %d\n", tapif->fd));
+  printf("tapif_init: fd %d\n", tapif->fd);
   if (tapif->fd == -1) {
 #ifdef LWIP_UNIX_LINUX
     perror("tapif_init: try running \"modprobe tun\" or rebuilding your kernel with CONFIG_TUN; cannot open "DEVTAP);

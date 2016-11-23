@@ -30,7 +30,7 @@ extern err_t tapif_init(struct netif *netif);
 
 
 
-struct netif ethoc_if;
+struct netif tap_if;
 //struct netif loop_if;
 
 void ethernet_hardreset(void);	//These reset codes are built for C6711 DSP
@@ -40,7 +40,7 @@ void tcpip_init_done_ok(void * arg);
 void Task_lwip_init(void * pParam)
 {
   ip4_addr_t ipaddr, netmask, gw;
-  sys_sem_t sem;
+  //sys_sem_t sem;
   
   //ethernet_hardreset();//hard reset of EthernetDaughterCard
 # if 0  
@@ -56,14 +56,15 @@ void Task_lwip_init(void * pParam)
   netif_init(); 
 #endif  // The initiation above is done in tcpip_init
 
-  printf("TCP/IP initializing...\n");  
-  if (sys_sem_new(&sem,0)!=ERR_OK) {
-    printf("Failed creating semaphore\n");
-  }
+  // Already called tcpip_adapter_init()
+  //printf("TCP/IP initializing...\n");  
+  //if (sys_sem_new(&sem,0)!=ERR_OK) {
+  //  printf("Failed creating semaphore\n");
+  //}
   // OLAS 
-  tcpip_init(tcpip_init_done_ok, &sem);
-  sys_sem_wait(sem);
-  sys_sem_free(sem);
+  //tcpip_init(tcpip_init_done_ok, &sem);
+  //sys_sem_wait(sem);
+  //sys_sem_free(sem);
   printf("TCP/IP initialized.\n");
   
   //add loop interface //set local loop-interface 127.0.0.1
@@ -79,9 +80,9 @@ void Task_lwip_init(void * pParam)
   IP4_ADDR(&ipaddr, 192,168,1,3);
   IP4_ADDR(&netmask, 255,255,255,0);
 
-  netif_add(&ethoc_if, &ipaddr, &netmask, &gw, NULL, tapif_init, tcpip_input);
-  netif_set_default(&ethoc_if);
-  netif_set_up(&ethoc_if); 
+  netif_add(&tap_if, &ipaddr, &netmask, &gw, NULL, tapif_init, tcpip_input);
+  netif_set_default(&tap_if);
+  netif_set_up(&tap_if); 
   
   printf("Applications started.\n");
   

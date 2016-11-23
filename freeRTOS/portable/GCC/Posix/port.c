@@ -63,7 +63,6 @@
 #include <sys/times.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <bits/sigaction.h>
 #include <unistd.h>
 #include <limits.h>
 #include <pthread.h>

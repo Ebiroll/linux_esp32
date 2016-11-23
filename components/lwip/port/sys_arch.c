@@ -47,6 +47,7 @@
 #include "lwip/debug.h"
 
 #include <string.h>
+#include <time.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <stdlib.h>
@@ -59,10 +60,13 @@
 #include <mach/mach.h>
 #include <mach/mach_time.h>
 #endif
+#include <sys/sysinfo.h>
+#include <sys/time.h>
 
-#include "lwip/sys.h"
+#include "sys.h"
 #include "lwip/opt.h"
 #include "lwip/stats.h"
+#include "port/arch/sys_arch.h"
 
 static void
 get_monotonic_time(struct timespec *ts)
@@ -182,15 +186,15 @@ sys_thread_new(const char *name, lwip_thread_fn function, void *arg, int stacksi
 /*-----------------------------------------------------------------------------------*/
 /* Mailbox */
 err_t
-sys_mbox_new(struct sys_mbox **mb, int size)
+sys_mbox_new(struct sys_mbox *mb, int size)
 {
-  struct sys_mbox *mbox;
+  struct sys_mbox *mbox=mb;
   LWIP_UNUSED_ARG(size);
 
-  mbox = (struct sys_mbox *)malloc(sizeof(struct sys_mbox));
-  if (mbox == NULL) {
-    return ERR_MEM;
-  }
+  //mbox = (struct sys_mbox *)malloc(sizeof(struct sys_mbox));
+  //if (mbox == NULL) {
+  //  return ERR_MEM;
+  //}
   mbox->first = mbox->last = 0;
   mbox->not_empty = sys_sem_new_internal(0);
   mbox->not_full = sys_sem_new_internal(0);
