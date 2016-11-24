@@ -42,3 +42,11 @@ First, whatever you do, the device /dev/net/tun must be opened read/write. That 
 
 The next step in creating the interface is issuing a special ioctl() system call, whose arguments are the descriptor obtained in the previous step
 
+Currently not working so well.
+
+For easier debugging, reate a file in your home directory called .gdbinit and place the following two lines in it:
+
+handle SIGUSR1 nostop noignore noprint
+handle SIG34 nostop noignore noprint
+
+
