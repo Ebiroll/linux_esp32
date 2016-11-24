@@ -56,7 +56,7 @@
 #include "netif/etharp.h"
 #include "lwip/ethip6.h"
 
-static char hostname[16];
+static char hostname[24];
 
 #if LWIP_IPV4 /* @todo: IPv6 */
 #if !NO_SYS
@@ -111,7 +111,7 @@ low_level_init(struct netif *netif)
     //} else {
     //  strncpy(ifr.ifr_name, DEVTAP_DEFAULT_IF, sizeof(ifr.ifr_name));
     //} 
-    strncpy(ifr.ifr_name, "/dev/tun0", sizeof(ifr.ifr_name));
+    strncpy(ifr.ifr_name, "tun0", sizeof(ifr.ifr_name));
     ifr.ifr_name[sizeof(ifr.ifr_name)-1] = 0; /* ensure \0 termination */
 
     ifr.ifr_flags = IFF_TUN|IFF_NO_PI;
@@ -136,7 +136,7 @@ low_level_init(struct netif *netif)
 
   LWIP_DEBUGF(TUNIF_DEBUG, ("tunif_init: system(\"%s\");\n", buf));
   system(buf);
-  sys_thread_new("tunif_thread", tunif_thread, netif, DEFAULT_THREAD_STACKSIZE, DEFAULT_THREAD_PRIO);
+  sys_thread_new("tunif_thread", tunif_thread, netif, DEFAULT_THREAD_STACKSIZE*2, DEFAULT_THREAD_PRIO);
 
 }
 /*-----------------------------------------------------------------------------------*/
@@ -155,19 +155,22 @@ low_level_output(struct tunif *tunif, struct pbuf *p)
 {
   char buf[1500];
   int rnd_val;
+  ssize_t written;
 
   /* initiate transfer(); */
 
+#if 0
   rnd_val = rand();
   if (((double)rnd_val/(double)RAND_MAX) < 0.4) {
     printf("drop\n");
     return ERR_OK;
   }
-
+#endif
   pbuf_copy_partial(p, buf, p->tot_len, 0);
 
   /* signal that packet should be sent(); */
-  if (write(tunif->fd, buf, p->tot_len) == -1) {
+  written=write(tunif->fd, buf, p->tot_len);
+  if (written == -1) {
     perror("tunif: write");
   }
   return ERR_OK;
@@ -320,7 +323,7 @@ tunif_init(struct netif *netif)
   netif->name[0] = IFNAME0;
   netif->name[1] = IFNAME1;
   netif->output = tunif_output;
-
+  netif->linkoutput = low_level_output;
 
   low_level_init(netif);
   return ERR_OK;
