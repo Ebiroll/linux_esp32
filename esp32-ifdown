@@ -4,7 +4,8 @@
 # 
 # Bring down eth0 and br0 
 #
-/sbin/ifdown eth0
+if [ -z "$*" ]; then echo "Usage esp32-ifdown tap0 eth0";exit 1; fi
+/sbin/ifdown $2
 /sbin/ifdown br0
 /sbin/ifconfig br0 down 
 # 
@@ -14,8 +15,8 @@
 # 
 # bring up eth0 in "normal" mode 
 #
-/sbin/ifconfig eth0 -promisc
-/sbin/ifup eth0 
+/sbin/ifconfig $2 -promisc
+/sbin/ifup $2 
 #
 # delete the tap device
 #
