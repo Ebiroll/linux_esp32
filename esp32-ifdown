@@ -11,7 +11,7 @@ if [ -z "$*" ]; then echo "Usage esp32-ifdown tap0 eth0";exit 1; fi
 # 
 # Delete the bridge
 #
-/usr/sbin/brctl delbr br0 
+brctl delbr br0 
 # 
 # bring up eth0 in "normal" mode 
 #

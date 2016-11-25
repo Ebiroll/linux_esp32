@@ -24,13 +24,13 @@ ip tuntap add dev $1 mode tap user `id -un`
 #
 # create the bridge between eth0 and the tap device
 #
-/usr/sbin/brctl addbr br0
-/usr/sbin/brctl addif br0 $2
-/usr/sbin/brctl addif br0 $1
+brctl addbr br0
+brctl addif br0 $2
+brctl addif br0 $1
 # 
 # only a single bridge so loops are not possible, turn off spanning tree protocol
 #
-/usr/sbin/brctl stp br0 off 
+brctl stp br0 off 
 # 
 # Bring up the bridge with ETH0IPADDR and add the default route 
 #
