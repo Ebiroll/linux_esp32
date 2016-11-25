@@ -26,8 +26,8 @@
 #include "port/arch/sys_arch.h"
 // -- Generic network interface --
 
-//extern err_t tapif_init(struct netif *netif);
-extern tunif_init(netif);
+extern err_t tapif_init(struct netif *netif);
+//extern tunif_init(netif);
 
 
 
@@ -81,7 +81,7 @@ void Task_lwip_init(void * pParam)
   IP4_ADDR(&ipaddr, 192,168,0,1);
   IP4_ADDR(&netmask, 255,255,255,0);
 
-  netif_add(&tap_if, &ipaddr, &netmask, &gw, NULL, tunif_init, tcpip_input);
+  netif_add(&tap_if, &ipaddr, &netmask, &gw, NULL, tapif_init, tcpip_input);
   netif_set_default(&tap_if);
   netif_set_up(&tap_if); 
   

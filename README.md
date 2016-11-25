@@ -19,8 +19,33 @@ Where: USER  := { STRING | NUMBER }
        GROUP := { STRING | NUMBER }
 
 # create tun interface
-ip tuntap add dev tun0 mode tun user olas
-ip link set tun0 up
+ip tuntap add dev tap0 mode tap user root
+ip link set tap0 up
+
+ifconfig tap0 0.0.0.0 promisc up
+ifconfig eth0 0.0.0.0 promisc up
+
+ip tuntap list
+
+#Setup bridge, to forward packages
+brctl addbr br0
+brctl show
+ip addr show
+ip addr add 172.20.0.1/16 dev br0
+ip link set br0 up
+
+iptables -I FORWARD -m physdev --physdev-is-bridged -j ACCEPT
+
+sysctl net.ipv4.ip_forward=1
+
+brctl addif br0 tap0 eth0
+
+#To delete
+brctl delif br0 tap0
+
+
+
+# Tun inteface
 
 The driver will later execute these
 /sbin/ip addr add 192.168.0.1/24 dev tun0

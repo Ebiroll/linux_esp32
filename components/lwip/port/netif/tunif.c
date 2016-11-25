@@ -94,7 +94,14 @@ low_level_init(struct netif *netif)
 
   tunif = (struct tunif *)netif->state;
 
-  /* Obtain MAC address from network interface. */
+  /* (We just fake an address...) */
+  netif->hwaddr[0] = 0x02;
+  netif->hwaddr[1] = 0x12;
+  netif->hwaddr[2] = 0x34;
+  netif->hwaddr[3] = 0x56;
+  netif->hwaddr[4] = 0x78;
+  netif->hwaddr[5] = 0xab;
+  netif->hwaddr_len = 6;
 
   /* Do whatever else is needed to initialize interface. */
 
@@ -114,7 +121,7 @@ low_level_init(struct netif *netif)
     //} else {
     //  strncpy(ifr.ifr_name, DEVTAP_DEFAULT_IF, sizeof(ifr.ifr_name));
     //} 
-    strncpy(ifr.ifr_name, "/dev/tun0", sizeof(ifr.ifr_name));
+    strncpy(ifr.ifr_name, "tun0", sizeof(ifr.ifr_name));
     ifr.ifr_name[sizeof(ifr.ifr_name)-1] = 0; /* ensure \0 termination */
     ifr.ifr_name[0]=0;
 
