@@ -66,7 +66,7 @@ bool esp_wifi_internal_tx_is_stop(void)
   */
 int esp_wifi_internal_tx(wifi_interface_t wifi_if, void *buffer, u16_t len)
 {
-
+    printf("esp_wifi_internal_tx");
 }
 
 /**

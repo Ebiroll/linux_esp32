@@ -58,6 +58,7 @@
 
 static char hostname[24];
 
+#define LWIP_UNIX_LINUX 1
 #if LWIP_IPV4 /* @todo: IPv6 */
 #if !NO_SYS
 
@@ -68,7 +69,9 @@ static char hostname[24];
 #define TUNIF_DEBUG LWIP_DBG_OFF
 #endif
 
-#define IFCONFIG_CALL "/sbin/ifconfig tun0 inet %d.%d.%d.%d %d.%d.%d.%d"
+//#define IFCONFIG_CALL "/sbin/ifconfig tun0 inet %d.%d.%d.%d %d.%d.%d.%d"
+#define IFCONFIG_CALL "/sbin/ip addr add %d.%d.%d.%d/24 dev tun0"
+#define ROUTE_CALL "/sbin/ip route add default via %d.%d.%d.%d"
 
 struct tunif {
   /* Add whatever per-interface state that is needed here. */
@@ -111,12 +114,13 @@ low_level_init(struct netif *netif)
     //} else {
     //  strncpy(ifr.ifr_name, DEVTAP_DEFAULT_IF, sizeof(ifr.ifr_name));
     //} 
-    strncpy(ifr.ifr_name, "tun0", sizeof(ifr.ifr_name));
+    strncpy(ifr.ifr_name, "/dev/tun0", sizeof(ifr.ifr_name));
     ifr.ifr_name[sizeof(ifr.ifr_name)-1] = 0; /* ensure \0 termination */
+    ifr.ifr_name[0]=0;
 
     ifr.ifr_flags = IFF_TUN|IFF_NO_PI;
-    if (ioctl(tapif->fd, TUNSETIFF, (void *) &ifr) < 0) {
-      perror("tunif_init: "DEVTAP" ioctl TUNSETIFF");
+    if (ioctl(tunif->fd, TUNSETIFF, (void *) &ifr) < 0) {
+      perror("tunif_init: tun0 ioctl TUNSETIFF");
       exit(1);
     }
   }
@@ -124,18 +128,23 @@ low_level_init(struct netif *netif)
 
 
   sprintf(buf, IFCONFIG_CALL,
-           ip4_addr1(netif_ip4_gw(netif)),
-           ip4_addr2(netif_ip4_gw(netif)),
-           ip4_addr3(netif_ip4_gw(netif)),
-           ip4_addr4(netif_ip4_gw(netif)),
            ip4_addr1(netif_ip4_addr(netif)),
            ip4_addr2(netif_ip4_addr(netif)),
            ip4_addr3(netif_ip4_addr(netif)),
            ip4_addr4(netif_ip4_addr(netif)));
 
 
-  LWIP_DEBUGF(TUNIF_DEBUG, ("tunif_init: system(\"%s\");\n", buf));
+  printf ("tunif_init: system(\"%s\");\n", buf);
   system(buf);
+
+  sprintf(buf, ROUTE_CALL,
+      ip4_addr1(netif_ip4_gw(netif)),
+      ip4_addr2(netif_ip4_gw(netif)),
+      ip4_addr3(netif_ip4_gw(netif)),
+      ip4_addr4(netif_ip4_gw(netif)));
+  printf ("tunif_init: system(\"%s\");\n", buf);
+  system(buf);
+
   sys_thread_new("tunif_thread", tunif_thread, netif, DEFAULT_THREAD_STACKSIZE*2, DEFAULT_THREAD_PRIO);
 
 }
@@ -151,10 +160,13 @@ low_level_init(struct netif *netif)
 /*-----------------------------------------------------------------------------------*/
 
 static err_t
-low_level_output(struct tunif *tunif, struct pbuf *p)
+low_level_output(struct netif *netif, struct pbuf *p)
 {
-  char buf[1500];
-  int rnd_val;
+  char buf[1540];
+  //int rnd_val;
+  struct tunif *tunif;
+
+  tunif = (struct tunif *)netif->state;
   ssize_t written;
 
   /* initiate transfer(); */
@@ -167,14 +179,31 @@ low_level_output(struct tunif *tunif, struct pbuf *p)
   }
 #endif
   pbuf_copy_partial(p, buf, p->tot_len, 0);
+  if (p->tot_len<64) {
+      p->tot_len=64;
+  }
 
   /* signal that packet should be sent(); */
-  written=write(tunif->fd, buf, p->tot_len);
+  written=write(tunif->fd, p->payload, p->tot_len);
   if (written == -1) {
+    printf("write %d,%d\n",tunif->fd,p->tot_len);
     perror("tunif: write");
+    if (errno==EINVAL) {
+        printf("EINVAL\n");
+    }
   }
   return ERR_OK;
 }
+/*
+ *   // write length + packet
+uint16_t plength = htons(p->tot_len);
+written = write(tunif->fd, (char *)&plength, sizeof(plength));
+if (written == -1) {
+    printf("write %d,%d\n",tunif->fd,p->tot_len);
+  perror("tunif: 1st write");
+}
+
+*/
 /*-----------------------------------------------------------------------------------*/
 /*
  * low_level_input():
@@ -261,7 +290,7 @@ tunif_output(struct netif *netif, struct pbuf *p,
 
   tunif = (struct tunif *)netif->state;
 
-  return low_level_output(tunif, p);
+  return low_level_output(netif, p);
 
 }
 /*-----------------------------------------------------------------------------------*/

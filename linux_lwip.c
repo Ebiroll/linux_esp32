@@ -77,8 +77,8 @@ void Task_lwip_init(void * pParam)
 	    tcpip_input);
   */
   //add ne2k interface
-  IP4_ADDR(&gw, 192,168,1,1);
-  IP4_ADDR(&ipaddr, 192,168,1,3);
+  IP4_ADDR(&gw, 192,168,0,1);
+  IP4_ADDR(&ipaddr, 192,168,0,1);
   IP4_ADDR(&netmask, 255,255,255,0);
 
   netif_add(&tap_if, &ipaddr, &netmask, &gw, NULL, tunif_init, tcpip_input);

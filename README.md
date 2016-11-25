@@ -21,6 +21,15 @@ Where: USER  := { STRING | NUMBER }
 # create tun interface
 ip tuntap add dev tun0 mode tun user olas
 ip link set tun0 up
+
+The driver will later execute these
+/sbin/ip addr add 192.168.0.1/24 dev tun0
+/sbin/ip route add default via 192.168.0.1
+
+ip route add 192.168.1.0/24 dev tun0
+
+These two are set by tunif driver,
+
 ip addr add 192.168.1.3/24 dev tun0
 ifconfig 
 
@@ -31,6 +40,20 @@ tun0: flags=4241<UP,POINTOPOINT,NOARP,MULTICAST>  mtu 1500
         RX errors 0  dropped 0  overruns 0  frame 0
         TX packets 0  bytes 0 (0.0 B)
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+#iptables
+iptables --list
+iptables -F
+iptables --list
+
+ip route show
+ip route add 192.168.0.0/24 dev tun0
+
+#Remove
+ip tuntap del dev tun0 mode tun
+
+ip link set dev tun0 up
+Cannot find device "tun0"
 
 
 #equivalent openvpn create command
