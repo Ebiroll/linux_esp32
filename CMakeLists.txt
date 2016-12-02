@@ -21,6 +21,7 @@ INCLUDE_DIRECTORIES(
 ${IDF_PATH}/components/nvs_flash/include/
 ${IDF_PATH}/components/esp32/include/
 ${IDF_PATH}/components/esp32/include
+${IDF_PATH}/components/ethernet/include/
 ${IDF_PATH}/components/driver/include/
 ${IDF_PATH}/components/log/include/
 ${IDF_PATH}/components/tcpip_adapter/include

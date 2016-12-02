@@ -25,6 +25,7 @@ ip link set tap0 up
 ifconfig tap0 0.0.0.0 promisc up
 ifconfig eth0 0.0.0.0 promisc up
 
+#More useful commands
 ip tuntap list
 
 #Setup bridge, to forward packages
