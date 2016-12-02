@@ -3,16 +3,18 @@ PROJECT(linux_esp32)
 #SET (CMAKE_BUILD_TYPE Release)
 SET (CMAKE_BUILD_TYPE Debug)
 
+
+
 enable_testing()
 
 set(IDF_PATH /home/olas/esp/esp-idf)
 set(LDF_PATH /home/olas/esp/linux_esp32)
-set(THIS_PATH /home/olas/esp/qemu_esp32)
+set(THIS_PATH /home/olas/esp/linux_esp32)
 
 ADD_DEFINITIONS(-D TEST )
 
 set(CMAKE_CXX_FLAGS "-g -Wall -std=c++11 -static-libstdc++")
-set(CMAKE_C_FLAGS "-g -std=c99")
+set(CMAKE_C_FLAGS "-g -std=gnu99")
 
 
 INCLUDE_DIRECTORIES(
@@ -21,17 +23,37 @@ ${IDF_PATH}/components/esp32/include/
 ${IDF_PATH}/components/esp32/include
 ${IDF_PATH}/components/driver/include/
 ${IDF_PATH}/components/log/include/
+${IDF_PATH}/components/tcpip_adapter/include
+${IDF_PATH}/components/tcpip_adapter/include
+${LDF_PATH}/components/lwip/include
+${LDF_PATH}/components/lwip/include/lwip/port
+${IDF_PATH}/components/lwip/include/lwip
+${LDF_PATH}/freeRTOS
+${LDF_PATH}/freeRTOS/freertos
+${IDF_PATH}/components/lwip/port/include
+${IDF_PATH}/components/lwip/include/lwip
+${IDF_PATH}/components/lwip/include/lwip/port
+${LDF_PATH}/freeRTOS/portable/GCC/Posix
 ${THIS_PATH}/build/include/
-freeRTOS
-freeRTOS/freertos
-freeRTOS/portable/GCC/Posix
+${THIS_PATH}/main/
 )
+
+INCLUDE_DIRECTORIES(BEFORE
+${LDF_PATH}/components/lwip/include
+${LDF_PATH}/components/lwip/include/lwip
+${LDF_PATH}/components/lwip/port/include
+${LDF_PATH}/components/lwip/port
+${LDF_PATH}/components/lwip
+)
+
 
 SET (LIBRARY_TYPE STATIC)
 
 ADD_LIBRARY(dummy
-components/nvs_flash/nvs_flash.c
-components/esp32/dummy_esp32.c
+${LDF_PATH}/components/nvs_flash/nvs_flash.c
+${LDF_PATH}/components/esp32/dummy_esp32.c
+${LDF_PATH}/components/esp32/dummy_esp_wifi.c
+${LDF_PATH}/components/esp32/dummy_esp_wifi_internal.c
 )
 
 ADD_LIBRARY(freertos
@@ -53,13 +75,71 @@ ${LDF_PATH}/freeRTOS/freertos/StackMacros.h
 ${LDF_PATH}/freeRTOS/freertos/task.h
 )
 
-
-ADD_EXECUTABLE(linux_esp32
-../qemu_esp32/main/main.c
-main_task.c
+set(LWIP_SRC
+${IDF_PATH}/components/lwip/core/def.c          
+${IDF_PATH}/components/lwip/core/mem.c    
+${IDF_PATH}/components/lwip/core/stats.c    
+${IDF_PATH}/components/lwip/core/timers.c
+${IDF_PATH}/components/lwip/core/dns.c          
+${IDF_PATH}/components/lwip/core/memp.c   
+${IDF_PATH}/components/lwip/core/sys.c      
+${IDF_PATH}/components/lwip/core/udp.c
+${IDF_PATH}/components/lwip/core/inet_chksum.c  
+${IDF_PATH}/components/lwip/core/netif.c  
+${IDF_PATH}/components/lwip/core/tcp.c
+${IDF_PATH}/components/lwip/core/init.c         
+${IDF_PATH}/components/lwip/core/pbuf.c   
+${IDF_PATH}/components/lwip/core/tcp_in.c
+${IDF_PATH}/components/lwip/core/ip.c           
+${IDF_PATH}/components/lwip/core/raw.c    
+${IDF_PATH}/components/lwip/core/tcp_out.c
+${IDF_PATH}/components/lwip/core/ipv4/autoip.c
+${IDF_PATH}/components/lwip/core/ipv4  
+${IDF_PATH}/components/lwip/core/ipv4/dhcp.c  
+${IDF_PATH}/components/lwip/core/ipv4/icmp.c  
+${IDF_PATH}/components/lwip/core/ipv4/igmp.c  
+${IDF_PATH}/components/lwip/core/ipv4/ip4_addr.c  
+${IDF_PATH}/components/lwip/core/ipv4/ip4.c  
+${IDF_PATH}/components/lwip/core/ipv4/ip_frag.c
+${IDF_PATH}/components/tcpip_adapter/tcpip_adapter_lwip.c
+${IDF_PATH}/components/lwip/netif/etharp.c    
+${IDF_PATH}/components/lwip/netif/ethernetif.c
+${IDF_PATH}/components/lwip/netif/ethernet.c
+${IDF_PATH}/components/lwip/apps/dhcpserver.c
+${IDF_PATH}/components/lwip/core/ipv6/dhcp6.c   
+${IDF_PATH}/components/lwip/core/ipv6/ip6_addr.c  
+${IDF_PATH}/components/lwip/core/ipv6/nd6.c
+${IDF_PATH}/components/lwip/core/ipv6/ethip6.c  
+${IDF_PATH}/components/lwip/core/ipv6/ip6.c       
+${IDF_PATH}/components/lwip/core/ipv6/icmp6.c   
+${IDF_PATH}/components/lwip/core/ipv6/ip6_frag.c
+${IDF_PATH}/components/lwip/core/ipv6/inet6.c   
+${IDF_PATH}/components/lwip/core/ipv6/mld6.c
+${IDF_PATH}/components/lwip/api/tcpip.c
+${IDF_PATH}/components/lwip/api/api_lib.c  
+${IDF_PATH}/components/lwip/api/err.c         
+${IDF_PATH}/components/lwip/api/netbuf.c  
+${IDF_PATH}/components/lwip/api/netifapi.c  
+${IDF_PATH}/components/lwip/api/sockets.c
+${IDF_PATH}/components/lwip/api/api_msg.c  
+${IDF_PATH}/components/lwip/api/lwip_debug.c  
+#${IDF_PATH}/components/lwip/api/netdb.c   
+${IDF_PATH}/components/lwip/api/pppapi.c    
+${LDF_PATH}/components/lwip/port/dummy_sys_arch.c
+${LDF_PATH}/components/lwip/port/netif/tapif.c
+${LDF_PATH}/linux_lwip.c
 )
 
-TARGET_LINK_LIBRARIES(linux_esp32 freertos dummy pthread)
+ADD_EXECUTABLE(main
+${THIS_PATH}/main/main.c
+${LWIP_SRC}
+${LDF_PATH}/main_task.c
+${IDF_PATH}/components/log/log.c
+${IDF_PATH}/components/esp32/event_loop.c
+${IDF_PATH}/components/esp32/event_default_handlers.c
+)
+
+TARGET_LINK_LIBRARIES(main freertos dummy pthread)
 
 
 #add_test(test1 testFunctions)
