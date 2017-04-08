@@ -106,6 +106,7 @@ ${IDF_PATH}/components/tcpip_adapter/tcpip_adapter_lwip.c
 ${IDF_PATH}/components/lwip/netif/etharp.c    
 ${IDF_PATH}/components/lwip/netif/ethernetif.c
 ${IDF_PATH}/components/lwip/netif/ethernet.c
+#${IDF_PATH}/components/ethernet/emac_main.c
 ${IDF_PATH}/components/lwip/apps/dhcpserver.c
 ${IDF_PATH}/components/lwip/core/ipv6/dhcp6.c   
 ${IDF_PATH}/components/lwip/core/ipv6/ip6_addr.c  
@@ -128,6 +129,7 @@ ${IDF_PATH}/components/lwip/api/lwip_debug.c
 ${IDF_PATH}/components/lwip/api/pppapi.c    
 ${LDF_PATH}/components/lwip/port/dummy_sys_arch.c
 ${LDF_PATH}/components/lwip/port/netif/tapif.c
+${LDF_PATH}/components/lwip/port/netif/ethernetif.c
 ${LDF_PATH}/linux_lwip.c
 )
 

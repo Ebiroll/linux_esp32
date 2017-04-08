@@ -133,8 +133,8 @@ typedef void * EventGroupHandle_t;
  * \defgroup EventBits_t EventBits_t
  * \ingroup EventGroup
  */
-//typedef TickType_t EventBits_t;
 typedef unsigned int  EventBits_t;
+typedef TickType_t EventBits_t;
 
 /**
  * event_groups.h

@@ -461,7 +461,7 @@ wlanif_input(struct netif *netif, void *buffer, uint16 len)
       return;
   }
   p->payload = buffer;
-  p->eb = eb;
+  //p->eb = eb;
 #else
   p = pbuf_alloc(PBUF_IP, len, PBUF_POOL);
   if (p == NULL) {
@@ -548,3 +548,54 @@ wlanif_init(struct netif *netif)
 
   return ERR_OK;
 }
+
+/**
+ * This function should be called when a packet is ready to be read
+ * from the interface. It uses the function low_level_input() that
+ * should handle the actual reception of bytes from the network
+ * interface. Then the type of the received packet is determined and
+ * the appropriate input function is called.
+ *
+ * @param netif the lwip network interface structure for this ethernetif
+ */
+static void
+ethernetif_input(struct netif *netif)
+{
+  struct ethernetif *ethernetif;
+  struct eth_hdr *ethhdr;
+  struct pbuf *p;
+
+  ethernetif = netif->state;
+
+  /* move received packet into a new pbuf */
+  p = low_level_input(netif);
+  /* no packet could be read, silently ignore this */
+  if (p == NULL) return;
+  /* points to packet payload, which starts with an Ethernet header */
+  ethhdr = p->payload;
+
+  switch (htons(ethhdr->type)) {
+  /* IP or ARP packet? */
+  case ETHTYPE_IP:
+  case ETHTYPE_IPV6:
+  case ETHTYPE_ARP:
+#if PPPOE_SUPPORT
+  /* PPPoE packet? */
+  case ETHTYPE_PPPOEDISC:
+  case ETHTYPE_PPPOE:
+#endif /* PPPOE_SUPPORT */
+    /* full packet send to tcpip_thread to process */
+    if (netif->input(p, netif)!=ERR_OK)
+     { LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
+       pbuf_free(p);
+       p = NULL;
+     }
+    break;
+
+  default:
+    pbuf_free(p);
+    p = NULL;
+    break;
+  }
+}
+

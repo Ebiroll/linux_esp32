@@ -76,6 +76,8 @@ esp_err_t esp_wifi_init(wifi_init_config_t *config) {
     return(ESP_OK);
 };
 
+
+
 /**
   * @brief  Deinit WiFi
   *         Free all resource allocated in esp_wifi_init and stop WiFi task
