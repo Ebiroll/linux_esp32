@@ -46,3 +46,16 @@ uint32_t system_get_time(void)
 unsigned xthal_get_ccount(void) {
     return 0;
 }
+
+int xPortGetCoreID 	( 	void  		) 	{
+    return 0;
+}
+
+uint32_t g_ticks_per_us_pro=1024;
+
+
+
+esp_err_t esp_register_shutdown_handler(shutdown_handler_t handler)
+{
+    return(ESP_OK);
+}

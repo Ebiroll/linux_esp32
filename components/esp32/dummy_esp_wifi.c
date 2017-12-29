@@ -72,7 +72,7 @@
   * @return ESP_OK : succeed
   * @return others : fail
   */
-esp_err_t esp_wifi_init(wifi_init_config_t *config) {
+esp_err_t esp_wifi_init(const wifi_init_config_t *config) {
     return(ESP_OK);
 };
 
@@ -231,7 +231,7 @@ esp_err_t esp_wifi_deauth_sta(uint16_t aid)
   * @return    ESP_OK : succeed
   * @return    others : fail
   */
-esp_err_t esp_wifi_scan_start(wifi_scan_config_t *conf, bool block)
+esp_err_t esp_wifi_scan_start(const wifi_scan_config_t *conf, bool block)
 {
         return(ESP_OK);    
 }
@@ -433,7 +433,7 @@ esp_err_t esp_wifi_get_channel(uint8_t *primary, wifi_second_chan_t *second)
   * @return    ESP_OK : succeed
   * @return    others : fail
   */
-esp_err_t esp_wifi_set_country(wifi_country_t country)
+esp_err_t esp_wifi_set_country(const wifi_country_t *country)
 {
         return(ESP_OK);    
 }
@@ -467,7 +467,7 @@ esp_err_t esp_wifi_get_country(wifi_country_t *country)
   * @return    true  : succeed
   * @return    false : fail
   */
-esp_err_t esp_wifi_set_mac(wifi_interface_t ifx, uint8_t mac[6])
+esp_err_t esp_wifi_set_mac(wifi_interface_t ifx, const uint8_t mac[6])
 {
         return(ESP_OK);    
 }
@@ -676,7 +676,9 @@ esp_err_t esp_wifi_get_auto_connect(bool *en)
   * @return    ESP_OK : succeed
   * @return    others : fail
   */
-esp_err_t esp_wifi_set_vendor_ie(bool enable, wifi_vendor_ie_type_t type, wifi_vendor_ie_id_t idx, uint8_t *vnd_ie)
+//esp_err_t esp_wifi_set_vendor_ie(bool enable, wifi_vendor_ie_type_t type, wifi_vendor_ie_id_t idx, uint8_t *vnd_ie)
+esp_err_t esp_wifi_set_vendor_ie(bool enable, wifi_vendor_ie_type_t type, wifi_vendor_ie_id_t idx, const void *vnd_ie)
+
 {
         return(ESP_OK);    
 }

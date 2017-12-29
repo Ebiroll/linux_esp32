@@ -549,6 +549,18 @@ wlanif_init(struct netif *netif)
   return ERR_OK;
 }
 
+err_t wlanif_init_sta(struct netif *netif) {
+  netif->name[0] = 's';
+  netif->name[1] = 't';
+  return wlanif_init(netif);
+}
+
+err_t wlanif_init_ap(struct netif *netif) {
+  netif->name[0] = 'a';
+  netif->name[1] = 'p';
+  return wlanif_init(netif);
+}
+
 /**
  * This function should be called when a packet is ready to be read
  * from the interface. It uses the function low_level_input() that

@@ -17,7 +17,7 @@
              // Use the standard less compilation problem matcher.
              "problemMatcher": {
                  "owner": "cpp",
-                 "fileLocation": ["relative", "${workspaceRoot}"],
+                 "fileLocation": "absolute",
                  "pattern": {
                      "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
                      "file": 1,

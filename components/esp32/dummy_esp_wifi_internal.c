@@ -23,7 +23,7 @@
  *
  */
 
-
+#include "esp_wifi.h"
 #include "esp_wifi_internal.h"
 
 /**

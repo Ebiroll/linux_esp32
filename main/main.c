@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "freertos/FreeRTOS.h"
 #include "esp_wifi.h"
 #include "esp_system.h"
@@ -7,7 +8,7 @@
 #include "driver/gpio.h"
 #include <string.h>
 #include "lwip/err.h"
-#include "lwip/sockets.h"
+//#include "lwip/sockets.h"
 #include "lwip/sys.h"
 #include "lwip/netif.h"
 #include "netif/etharp.h"

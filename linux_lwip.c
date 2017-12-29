@@ -37,6 +37,9 @@ struct netif tap_if;
 void ethernet_hardreset(void);	//These reset codes are built for C6711 DSP
 void tcpip_init_done_ok(void * arg);
 
+void lwip_init(void * pParam) {
+  Task_lwip_init(pParam);
+}
 
 void Task_lwip_init(void * pParam)
 {

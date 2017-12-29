@@ -7,19 +7,22 @@ SET (CMAKE_BUILD_TYPE Debug)
 
 enable_testing()
 
-set(IDF_PATH /home/olas/esp/esp-idf)
-set(LDF_PATH /home/olas/esp/linux_esp32)
-set(THIS_PATH /home/olas/esp/linux_esp32)
+set(IDF_PATH /home/olof/esp/esp-idf)
+set(LDF_PATH /home/olof/esp/linux_esp32)
+set(THIS_PATH /home/olof/esp/linux_esp32)
 
-ADD_DEFINITIONS(-D TEST )
+ADD_DEFINITIONS(-D TEST -D LWIP_NOASSERT -D DNS_FALLBACK_SERVER_INDEX=1 -DCONFIG_IP_LOST_TIMER_INTERVAL=0)
 
 set(CMAKE_CXX_FLAGS "-g -Wall -std=c++11 -static-libstdc++")
 set(CMAKE_C_FLAGS "-g -std=gnu99")
 
 
 INCLUDE_DIRECTORIES(
+#${IDF_PATH}/components/newlib/include/sys/
 ${IDF_PATH}/components/nvs_flash/include/
 ${IDF_PATH}/components/esp32/include/
+${IDF_PATH}/components/soc/esp32/include/
+${IDF_PATH}/components/soc/include
 ${IDF_PATH}/components/esp32/include
 ${IDF_PATH}/components/ethernet/include/
 ${IDF_PATH}/components/driver/include/
@@ -31,6 +34,7 @@ ${LDF_PATH}/components/lwip/include/lwip/port
 ${IDF_PATH}/components/lwip/include/lwip
 ${LDF_PATH}/freeRTOS
 ${LDF_PATH}/freeRTOS/freertos
+${IDF_PATH}/components/freertos/include/
 ${IDF_PATH}/components/lwip/port/include
 ${IDF_PATH}/components/lwip/include/lwip
 ${IDF_PATH}/components/lwip/include/lwip/port
@@ -82,13 +86,14 @@ ${IDF_PATH}/components/lwip/core/mem.c
 ${IDF_PATH}/components/lwip/core/stats.c    
 ${IDF_PATH}/components/lwip/core/timers.c
 ${IDF_PATH}/components/lwip/core/dns.c          
-${IDF_PATH}/components/lwip/core/memp.c   
+#${IDF_PATH}/components/lwip/core/memp.c
+${LDF_PATH}/components/lwip/core/memp.c   
 ${IDF_PATH}/components/lwip/core/sys.c      
 ${IDF_PATH}/components/lwip/core/udp.c
 ${IDF_PATH}/components/lwip/core/inet_chksum.c  
 ${IDF_PATH}/components/lwip/core/netif.c  
 ${IDF_PATH}/components/lwip/core/tcp.c
-${IDF_PATH}/components/lwip/core/init.c         
+#${IDF_PATH}/components/lwip/core/init.c         
 ${IDF_PATH}/components/lwip/core/pbuf.c   
 ${IDF_PATH}/components/lwip/core/tcp_in.c
 ${IDF_PATH}/components/lwip/core/ip.c           
@@ -106,6 +111,7 @@ ${IDF_PATH}/components/tcpip_adapter/tcpip_adapter_lwip.c
 ${IDF_PATH}/components/lwip/netif/etharp.c    
 ${IDF_PATH}/components/lwip/netif/ethernetif.c
 ${IDF_PATH}/components/lwip/netif/ethernet.c
+#${IDF_PATH}/components/lwip/port/netif/wlanif.c
 #${IDF_PATH}/components/ethernet/emac_main.c
 ${IDF_PATH}/components/lwip/apps/dhcpserver.c
 ${IDF_PATH}/components/lwip/core/ipv6/dhcp6.c   
@@ -122,9 +128,9 @@ ${IDF_PATH}/components/lwip/api/api_lib.c
 ${IDF_PATH}/components/lwip/api/err.c         
 ${IDF_PATH}/components/lwip/api/netbuf.c  
 ${IDF_PATH}/components/lwip/api/netifapi.c  
-${IDF_PATH}/components/lwip/api/sockets.c
+#${IDF_PATH}/components/lwip/api/sockets.c
 ${IDF_PATH}/components/lwip/api/api_msg.c  
-${IDF_PATH}/components/lwip/api/lwip_debug.c  
+#${IDF_PATH}/components/lwip/port/debug/lwip_debug.c  
 #${IDF_PATH}/components/lwip/api/netdb.c   
 ${IDF_PATH}/components/lwip/api/pppapi.c    
 ${LDF_PATH}/components/lwip/port/dummy_sys_arch.c
