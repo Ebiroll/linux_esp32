@@ -32,10 +32,10 @@
 #ifndef __LWIPOPTS_H__
 #define __LWIPOPTS_H__
 
-#include <stdlib.h>
-#include <time.h>
-#include <sys/time.h>
-#include <sys/fcntl.h>
+//#include <stdlib.h>
+//#include <time.h>
+//#include <sys/time.h>
+//#include <sys/fcntl.h>
 #include "esp_task.h"
 #include "sdkconfig.h"
 
