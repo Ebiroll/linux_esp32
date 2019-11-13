@@ -1,6 +1,10 @@
 # linux_esp32
 Linux compatible esp-idf library
 
+Another FreeRTOS POSIX implementation can be found here,
+
+https://github.com/megakilo/FreeRTOS-Sim
+
 It has an older version of FreeRTOS for use under linux.
 
 It uses the tun/tap interface 
